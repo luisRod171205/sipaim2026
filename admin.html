@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrador - SIPAIM 2026</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="page-admin">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      SIPAIM <span>2026</span> - Admin
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="window.location.href='index.html'">Volver al Programa</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <!-- ── TIPO DE CAMBIO ── -->
+<section id="tipo-cambio" style="margin-bottom: 30px;">
+  <div class="section-label">Configuración</div>
+  <h2 class="section-title">Tipo de Cambio</h2>
+  <div style="display: flex; gap: 16px; align-items: flex-end; background: var(--surface-muted); padding: 20px; border-radius: var(--radius);">
+    <div class="form-group" style="margin-bottom: 0;">
+      <label>1 USD = S/.</label>
+      <input type="number" id="tipo-cambio-input" step="0.01" value="3.43" style="width: 120px;">
+    </div>
+    <button type="button" class="btn-primary" id="guardar-tipo-cambio">Guardar Tipo de Cambio</button>
+    <span id="tipo-cambio-status" style="font-size: 12px; color: var(--text-muted);"></span>
+  </div>
+</section>
+
+    <!-- ── CREAR ACTIVIDAD ── -->
+    <section id="crear-actividad">
+      <div class="section-label">Administración</div>
+      <h2 class="section-title">Crear Nueva Actividad</h2>
+      <form id="actividad-form">
+        <div class="form-group">
+          <label for="titulo">Título de la Actividad</label>
+          <input type="text" id="titulo" required>
+        </div>
+        <div class="form-group">
+          <label for="dia">Día de la Semana</label>
+          <select id="dia" required>
+            <option value="">Seleccionar día...</option>
+            <option value="Lunes">Lunes</option>
+            <option value="Martes">Martes</option>
+            <option value="Miércoles">Miércoles</option>
+            <option value="Jueves">Jueves</option>
+            <option value="Viernes">Viernes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="hora">Hora</label>
+          <div class="custom-time-picker">
+            <div class="time-inputs">
+              <input type="text" id="hora-hh" class="time-part" placeholder="00" maxlength="2" inputmode="numeric">
+              <span class="time-separator">:</span>
+              <input type="text" id="hora-mm" class="time-part" placeholder="00" maxlength="2" inputmode="numeric">
+            </div>
+            <div class="time-ampm">
+              <button type="button" class="ampm-btn active" id="btn-am" onclick="setAmPm('AM')">AM</button>
+              <button type="button" class="ampm-btn" id="btn-pm" onclick="setAmPm('PM')">PM</button>
+            </div>
+          </div>
+          <input type="hidden" id="hora" required>
+        </div>
+<!-- HORA FIN -->
+<div class="form-group">
+  <label>Hora de Fin</label>
+  <div class="custom-time-picker">
+    <div class="time-inputs">
+      <input type="text" id="hora-fin-hh" class="time-part" placeholder="00" maxlength="2" inputmode="numeric">
+      <span class="time-separator">:</span>
+      <input type="text" id="hora-fin-mm" class="time-part" placeholder="00" maxlength="2" inputmode="numeric">
+    </div>
+    <div class="time-ampm">
+      <button type="button" class="ampm-btn active" id="btn-fin-am" onclick="setAmPmFin('AM')">AM</button>
+      <button type="button" class="ampm-btn" id="btn-fin-pm" onclick="setAmPmFin('PM')">PM</button>
+    </div>
+  </div>
+  <input type="hidden" id="hora-fin">
+</div>
+        <button type="submit" class="btn-primary">Crear Actividad</button>
+      </form>
+    </section>
+
+    <!-- SEPARATOR -->
+    <div class="section-separator"></div>
+
+    <!-- ── LISTA DE ACTIVIDADES ── -->
+    <section id="lista-actividades">
+      <h2 class="section-title">Actividades Existentes</h2>
+      <div id="actividades-list">
+        <div class="loading">Cargando actividades...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── MODAL PARA AGREGAR OPCIONES ── -->
+  <div class="modal-overlay" id="opciones-modal">
+    <div class="modal modal-opciones master-detail">
+      <!-- PANEL IZQUIERDO -->
+      <div class="modal-left">
+        <div class="modal-left-header">
+          <div class="modal-badge">Opciones</div>
+          <h2 id="om-title">Actividad</h2>
+        </div>
+        <button type="button" class="btn-secondary btn-add-new-option" onclick="mostrarFormularioOpcion()">+ Añadir
+          nueva opción</button>
+        <div class="opciones-list-scroll" id="opciones-list-wrap">
+          <div id="opciones-list"></div>
+        </div>
+        <div class="modal-left-footer">
+          <button type="button" class="btn-secondary" style="width: 100%;" onclick="closeModal('opciones-modal')">Cerrar
+            Administrador</button>
+        </div>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div class="modal-right">
+        <!-- VISTA DE DETALLE -->
+        <div id="opcion-detail-view" style="display: none;">
+          <!-- Se llenará dinámicamente con JS -->
+        </div>
+
+        <!-- VISTA DE FORMULARIO -->
+        <div id="opcion-form-view">
+          <div class="modal-right-header">
+            <h3 id="opcion-form-title">Crear Nueva Opción</h3>
+            <p class="modal-opciones-hint">Define los detalles de la opción para esta actividad.</p>
+          </div>
+          <div class="modal-opciones-form">
+            <div class="form-group">
+              <label for="nueva-opcion-titulo">Título de la Opción</label>
+              <input type="text" id="nueva-opcion-titulo" placeholder="Ej: NVIDIA Workshop" />
+            </div>
+            <div class="form-group">
+              <label for="nueva-opcion-desc">Descripción (Opcional)</label>
+              <div class="admin-textarea-wrap">
+                <textarea id="nueva-opcion-desc" placeholder="Describe la opción..." rows="3" cols="1"
+                  wrap="soft"></textarea>
+              </div>
+            </div>
+
+            <!-- INFORMACIÓN CRÍTICA (Resaltada) -->
+            <div class="relevant-info-group" style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed var(--border);">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 10px; color: var(--accent);">Información Crítica (Resaltada)</label>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div class="form-group">
+                        <label>Price</label>
+                        <div style="display: flex; gap: 5px;">
+                            <select id="info-moneda" style="width: 70px; padding: 8px; border-radius: 8px; border: 1px solid var(--border);">
+                                <option value="S/.">S/.</option>
+                                <option value="$">$</option>
+                            </select>
+                            <input type="number" id="info-precio" step="0.01" placeholder="0.00" style="flex: 1;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Availability</label>
+                        <input type="text" id="info-disponibilidad" placeholder="Ej: Lunes a Viernes">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Capacity / Price Notes (Optional)</label>
+                    <input type="text" id="info-notas" placeholder="Ej: Precio fijo hasta 20 comensales">
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="nueva-opcion-extra">Detalles adicionales (Campos dinámicos)</label>
+              <div id="campos-dinamicos-container"></div>
+              <button type="button" class="btn-secondary" style="margin-top: 10px; width: 100%; border-style: dashed;"
+                onclick="agregarFilaCampo()">
+                + Añadir campo (ej: Requisitos, Tecnologías)
+              </button>
+            </div>
+          </div>
+          <div class="modal-actions" style="margin-top: auto; padding-top: 20px; display: grid; gap: 10px;">
+            <button type="button" id="opcion-form-submit-btn" class="btn-primary" style="width: 100%;" onclick="agregarOpcion()">Guardar Opción</button>
+            <button type="button" id="opcion-cancel-edit-btn" class="btn-secondary" style="width: 100%; display: none;" onclick="cancelarEdicion()">Cancelar edición</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS TOAST ── -->
+  <div class="toast" id="toast">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="#5ec98a" stroke-width="1.5" />
+      <path d="M5 8l2.5 2.5L11 6" stroke="#5ec98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span id="toast-msg">Mensaje</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SIPAIM 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+
+<!-- Librerías de Exportación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    SIPAIM <span>2026</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="scrollToSection('pendientes')">Pending activities</button>
+    <button class="nav-btn" onclick="scrollToSection('programa')">Activity Schedule</button>
+    <button class="nav-btn" onclick="window.location.href='admin.html'">Admin</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="page-content">
+
+  <!-- ── ACTIVIDADES PENDIENTES ── -->
+  <section id="pendientes" class="section-card">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Decisions Required</p>
+        <h2 class="section-title">Pending Activities</h2>
+      </div>
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" data-filter="pendiente" onclick="setFilter('pendiente')">Pending</button>
+        <button class="filter-btn" data-filter="cerrado" onclick="setFilter('cerrado')">Confirmed</button>
+        <button class="filter-btn" data-filter="inactivo" onclick="setFilter('inactivo')">Inactives</button>
+      </div>
+    </div>
+
+    <div class="pendientes-layout">
+      <!-- Columna izquierda: progreso + lista -->
+      <div class="pendientes-left-col">
+        <div class="progress-summary">
+          <div>
+            <strong id="progress-text">0 of 3 decisions made</strong>
+          </div>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-track progress-track--tall">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="pending-list" id="pending-list">
+          <div class="loading">Loading pending activities...</div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: donut -->
+      <div class="pendientes-right-col">
+<div class="donut-svg-wrap">
+  <svg width="180" height="180" viewBox="0 0 120 120">
+    <!-- Círculo de fondo gris claro -->
+    <circle cx="60" cy="60" r="48" fill="none" stroke="#e2e8f0" stroke-width="14"/>
+    
+    <!-- Círculo para PENDIENTES (rojo) -->
+    <circle id="donut-pending" cx="60" cy="60" r="48" fill="none" stroke="#ef4444" stroke-width="14"
+      stroke-dasharray="0 301.6" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+    
+    <!-- Círculo para CONFIRMADOS (verde) -->
+    <circle id="donut-confirmed" cx="60" cy="60" r="48" fill="none" stroke="#10b981" stroke-width="14"
+      stroke-dasharray="0 301.6" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+    
+    <!-- Texto central -->
+    <text id="donut-center-text" x="60" y="60" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="#0f172a">0</text>
+  </svg>
+</div>
+<div class="donut-legend">
+  <div class="legend-item">
+    <span class="legend-dot" style="background: #dc2626"></span>
+    <span id="legend-pending">0 pending</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-dot" style="background: #10b981"></span>
+    <span id="legend-confirmed">0 confirmed</span>
+  </div>
+</div>
+  </section>
+
+  <!-- SEPARATOR -->
+  <div class="section-separator"></div>
+
+  <!-- ── PROGRAMA DE ACTIVIDADES ── -->
+  <section id="programa" class="section-card">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Weekly View</p>
+        <h2 class="section-title">Activity Schedule</h2>
+      </div>
+    </div>
+    <div class="section-body">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="tab-bar" id="tab-bar"></div>
+        <button class="btn-export-excel" onclick="exportarCronogramaExcel()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <path d="M12 18v-6"></path>
+            <path d="M9 15l3 3 3-3"></path>
+          </svg>
+          Exportar a Excel
+        </button>
+      </div>
+      <div class="tabs-separator"></div>
+      <div class="schedule-list" id="schedule-list">
+        <div class="loading">Loading Schedule....</div>
+      </div>
+      <div class="global-actions" id="global-actions"></div>
+    </div>
+  </section>
+
+  <!-- ── COMENTARIOS Y SUGERENCIAS ── -->
+ 
+
+</main>
+
+<!-- ── DETAIL MODAL (pending option cards) ── -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" id="detail-modal-content">
+    <div class="modal-badge" id="dm-badge">NVIDIA DLI</div>
+    <h2 id="dm-title">Acitivity <Title></Title></h2>
+    <div class="modal-meta" id="dm-meta"></div>
+    <p id="dm-desc">Activity description</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('detail-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHOOSE MODAL (select option) ── -->
+<div class="modal-overlay" id="choose-modal">
+  <div class="modal">
+    <div class="modal-badge">Select Option</div>
+    <h2 id="cm-title">Confirm Activity</h2>
+    <p id="cm-desc">Do you want to confirm this activity as selected for the program?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('choose-modal')">Cancel</button>
+      <button class="btn-primary" id="cm-confirm-btn">Confirm Selection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── INFO MODAL (confirmed activity) ── -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal">
+    <div class="info-modal-badge">✓ Confirmed</div>
+    <h2 id="im-title">Title</h2>
+    <div class="modal-meta" id="im-meta"></div>
+    <p id="im-desc">Description</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('info-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUCCESS TOAST ── -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="7" stroke="#5ec98a" stroke-width="1.5"/>
+    <path d="M5 8l2.5 2.5L11 6" stroke="#5ec98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span id="toast-msg">Activity confirmed</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js" defer></script>
+</body>
+</html>
