@@ -1196,10 +1196,10 @@ async function seleccionarOpcion(actividadId, opcionId, evt) {
   const targetOption = act.opciones.find(o => o.id === opcionId);
   if (!targetOption) return;
 
-  // Verificar si es "Special Clinical Session" (permite múltiple selección)
-  const isSpecialClinicalSession = act.titulo === 'Special Clinical Session: Medical Perspectives';
+  // Verificar si la actividad permite múltiple selección (inclusivo)
+const isMultipleSelection = act.tipo_seleccion === 'inclusivo';
   
-  if (isSpecialClinicalSession) {
+  if (isMultipleSelection) {
     // MODO MULTIPLE: toggle la opción seleccionada
     targetOption.seleccionada = !targetOption.seleccionada;
   } else {
@@ -1232,7 +1232,7 @@ async function seleccionarOpcion(actividadId, opcionId, evt) {
       el.classList.toggle('selected-item', opt.seleccionada);
       
       // Solo para modo single mostrar el rojo
-      if (!isSpecialClinicalSession) {
+      if (!isMultipleSelection) {
         el.classList.toggle('deselected-item', hasAnySelected && !opt.seleccionada);
       } else {
         el.classList.remove('deselected-item');
@@ -1289,7 +1289,7 @@ async function seleccionarOpcion(actividadId, opcionId, evt) {
   renderGlobalActions();
 
   const selectedCount = act.opciones.filter(o => o.seleccionada).length;
-  showToast(isSpecialClinicalSession 
+  showToast(isMultipleSelection 
     ? `${selectedCount} option(s) selected`
     : (selectedCount > 0 ? `✓ Option selected` : `✓ Option deselected`));
 
@@ -1299,7 +1299,7 @@ async function seleccionarOpcion(actividadId, opcionId, evt) {
 
   try {
     if (sb) {
-      if (isSpecialClinicalSession) {
+      if (isMultipleSelection) {
         // Guardar selección múltiple: actualizar cada opción individualmente
         for (const opt of act.opciones) {
           await sb.from('opciones')

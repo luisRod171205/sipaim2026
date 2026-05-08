@@ -123,20 +123,18 @@ function renderActividades(actividades) {
   }).join('');
 }
 
-async function crearActividad(titulo, dia, hora, horaFin) {
+async function crearActividad(titulo, dia, hora, horaFin, tipoSeleccion, estadoInicial) {
   if (!sb) { alert('❌ Error: Supabase no está cargado'); return; }
   try {
     const fechaCompleta    = getFechaFromDiaYHora(dia, hora);
     const fechaFinCompleta = getFechaFromDiaYHora(dia, horaFin);
 
-    console.log('Guardando fecha inicio:', fechaCompleta);
-    console.log('Guardando fecha fin:', fechaFinCompleta);
-
     const { data, error } = await sb.from('actividades').insert({
       titulo,
       fecha: fechaCompleta,
       fecha_fin: fechaFinCompleta,
-      estado: 'inactivo'
+      estado: estadoInicial,           
+      tipo_seleccion: tipoSeleccion     
     }).select();
 
     if (error) throw error;
@@ -147,6 +145,7 @@ async function crearActividad(titulo, dia, hora, horaFin) {
     alert('❌ Error: ' + (e.message || 'Error desconocido'));
   }
 }
+
 
 
 function getFechaFromDiaYHora(dia, hora) {
@@ -721,11 +720,13 @@ document.getElementById('actividad-form').addEventListener('submit', async (e) =
   const dia     = document.getElementById('dia').value;
   const hora    = document.getElementById('hora').value;
   const horaFin = document.getElementById('hora-fin').value;
+  const tipoSeleccion = document.getElementById('tipo-seleccion').value;
+  const estadoInicial = document.getElementById('estado-inicial').value;  
 
   if (!hora) { showToast('⚠️ Selecciona la hora de inicio', 'error'); return; }
   if (!horaFin) { showToast('⚠️ Selecciona la hora de fin', 'error'); return; }
 
-  await crearActividad(titulo, dia, hora, horaFin);
+  await crearActividad(titulo, dia, hora, horaFin, tipoSeleccion, estadoInicial);
   document.getElementById('actividad-form').reset();
   setAmPm('AM');
   setAmPmFin('AM');
