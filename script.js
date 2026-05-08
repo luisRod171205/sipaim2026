@@ -449,10 +449,15 @@ function scrollToSection(id) {
 
 function formatHoraActividad(fecha) {
   if (!fecha) return '';
-  const d = new Date(fecha);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+  const fechaStr = typeof fecha === 'string' ? fecha : fecha.toISOString();
+  const match = fechaStr.match(/T(\d{2}):(\d{2})/);
+  if (match) {
+    return `${match[1]}:${match[2]}`;
+  }
+  return '';
 }
+
+
 
 function formatRangoHora(fecha, fechaFin) {
   const inicio = formatHoraActividad(fecha);

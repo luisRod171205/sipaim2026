@@ -129,11 +129,14 @@ async function crearActividad(titulo, dia, hora, horaFin) {
     const fechaCompleta    = getFechaFromDiaYHora(dia, hora);
     const fechaFinCompleta = getFechaFromDiaYHora(dia, horaFin);
 
+    console.log('Guardando fecha inicio:', fechaCompleta);
+    console.log('Guardando fecha fin:', fechaFinCompleta);
+
     const { data, error } = await sb.from('actividades').insert({
       titulo,
-      fecha:     fechaCompleta,
+      fecha: fechaCompleta,
       fecha_fin: fechaFinCompleta,
-      estado:    'inactivo'
+      estado: 'inactivo'
     }).select();
 
     if (error) throw error;
@@ -145,6 +148,7 @@ async function crearActividad(titulo, dia, hora, horaFin) {
   }
 }
 
+
 function getFechaFromDiaYHora(dia, hora) {
   const semanaBase = {
     'Lunes': '2026-04-20',
@@ -155,14 +159,14 @@ function getFechaFromDiaYHora(dia, hora) {
   };
 
   const fechaBase = semanaBase[dia];
+  if (!fechaBase) throw new Error('Día inválido');
 
-  if (!fechaBase) {
-    throw new Error('Día inválido');
-  }
-
-  // 🔴 IMPORTANTE: devolver STRING, NO Date
+  // Guardar SIN zona horaria (como texto simple)
   return `${fechaBase}T${hora}:00`;
 }
+
+
+
 async function cambiarEstado(actividadId, estadoActual) {
   const estados = ['inactivo', 'pendiente', 'cerrado'];
   const currentIndex = estados.indexOf(estadoActual);
@@ -763,24 +767,25 @@ function updateHiddenHora() {
   let h = parseInt(hhInput, 10);
   const m = parseInt(mmInput, 10);
   if (isNaN(h) || isNaN(m)) return;
-  if (currentAmPm === 'PM' && h < 12) h += 12;
-  if (currentAmPm === 'AM' && h === 12) h = 0;
+  
+  // No convertir AM/PM, usar el valor directo (formato 24h)
   hiddenInput.value = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
 }
+
 
 function initTimePicker() {
   const hh = document.getElementById('hora-hh');
   const mm = document.getElementById('hora-mm');
   if (!hh || !mm) return;
 
-  hh.addEventListener('input', (e) => {
-    let val = e.target.value.replace(/\D/g, '');
-    if (val.length > 2) val = val.slice(0, 2);
-    if (parseInt(val) > 12) val = '12';
-    e.target.value = val;
-    if (val.length === 2 && parseInt(val) > 0) mm.focus();
-    updateHiddenHora();
-  });
+ hh.addEventListener('input', (e) => {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 2) val = val.slice(0, 2);
+  if (parseInt(val) > 23) val = '23';  // ← Ahora permite hasta 23
+  e.target.value = val;
+  if (val.length === 2 && parseInt(val) > 0) mm.focus();
+  updateHiddenHora();
+});
   hh.addEventListener('blur', (e) => {
     let val = e.target.value;
     if (val.length === 1 && parseInt(val) > 0) e.target.value = '0' + val;
@@ -817,24 +822,25 @@ function updateHiddenHoraFin() {
   let h = parseInt(hhInput, 10);
   const m = parseInt(mmInput, 10);
   if (isNaN(h) || isNaN(m)) return;
-  if (currentAmPmFin === 'PM' && h < 12) h += 12;
-  if (currentAmPmFin === 'AM' && h === 12) h = 0;
+  
+  // Usar el valor directo (formato 24h)
   hiddenInput.value = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
 }
+
 
 function initTimePickerFin() {
   const hh = document.getElementById('hora-fin-hh');
   const mm = document.getElementById('hora-fin-mm');
   if (!hh || !mm) return;
 
-  hh.addEventListener('input', (e) => {
-    let val = e.target.value.replace(/\D/g, '');
-    if (val.length > 2) val = val.slice(0, 2);
-    if (parseInt(val) > 12) val = '12';
-    e.target.value = val;
-    if (val.length === 2 && parseInt(val) > 0) mm.focus();
-    updateHiddenHoraFin();
-  });
+ hh.addEventListener('input', (e) => {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 2) val = val.slice(0, 2);
+  if (parseInt(val) > 23) val = '23';  // ← Ahora permite hasta 23
+  e.target.value = val;
+  if (val.length === 2 && parseInt(val) > 0) mm.focus();
+  updateHiddenHoraFin();
+});
   hh.addEventListener('blur', (e) => {
     let val = e.target.value;
     if (val.length === 1 && parseInt(val) > 0) e.target.value = '0' + val;
