@@ -915,15 +915,15 @@ function renderPending() {
       </div>`;
   }).join('');
   
-  // Calcular estadísticas para la barra de progreso
-  const totalActividades = state.actividades.filter(act => act.estado !== 'inactivo').length;
-  const cerradas = state.actividades.filter(act => act.estado === 'cerrado').length;
-  const pctCerradas = totalActividades > 0 ? Math.round((cerradas / totalActividades) * 100) : 0;
-  
-  document.getElementById('progress-text').textContent =
-    totalActividades === 0 ? 'No activities this week' : `${cerradas} of ${totalActividades} decisions made`;
-  document.getElementById('progress-pct').textContent = `${pctCerradas}%`;
-  document.getElementById('progress-fill').style.width = `${pctCerradas}%`;
+// Calcular estadísticas para la barra de progreso (considerando TODAS las actividades)
+const totalActividades = state.actividades.length;  // ← Cambiado: todas las actividades
+const cerradas = state.actividades.filter(act => act.estado === 'cerrado').length;
+const pctCerradas = totalActividades > 0 ? Math.round((cerradas / totalActividades) * 100) : 0;
+
+document.getElementById('progress-text').textContent =
+  totalActividades === 0 ? 'No activities' : `${cerradas} of ${totalActividades} decisions made`;
+document.getElementById('progress-pct').textContent = `${pctCerradas}%`;
+document.getElementById('progress-fill').style.width = `${pctCerradas}%`;
 }
 
 
@@ -947,7 +947,7 @@ function renderDonut() {
   
   // Según el filtro seleccionado
   if (state.filterEstado === 'all') {
-    // MOSTRAR DONUT MORADO COMPLETO (como los otros filtros)
+    // MOSTRAR DONUT MORADO COMPLETO
     // El círculo se pone morado y muestra el total de actividades
     
     donutPending.style.stroke = '#3b82f6'; // Color morado
@@ -955,7 +955,7 @@ function renderDonut() {
     donutPending.style.strokeDashoffset = '0';
     donutConfirmed.style.strokeDasharray = `0 ${circ}`;
     
-    // El centro muestra TODAS las actividades
+    // El centro muestra las actividades
     centerText.textContent = totalGeneral;
     
     // Las leyendas muestran pendientes y confirmados

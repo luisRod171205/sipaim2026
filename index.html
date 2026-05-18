@@ -22,6 +22,7 @@
     <button class="nav-btn active" onclick="scrollToSection('pendientes')">Pending activities</button>
     <button class="nav-btn" onclick="scrollToSection('programa')">Activity Schedule</button>
     <button class="nav-btn" onclick="window.location.href='admin.html'">Admin</button>
+    <button class="nav-btn" onclick="window.location.href='excel.html'">Excel</button>
   </div>
 </nav>
 
@@ -123,8 +124,12 @@
     </div>
   </section>
 
+ 
   <!-- ── COMENTARIOS Y SUGERENCIAS ── -->
  
+
+
+
 
 </main>
 
@@ -178,5 +183,37 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js" defer></script>
+
+  <!-- ... todo tu contenido HTML ... -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+
+  <!-- ───  Excel ─── -->
+  <script>
+    // IDs de Google Sheets
+    const SHEET_ID = '2PACX-1vSCm6nNkCuLkJvEn96wXQuO_smplCF07d-DkYXvoiHY67vC8BE7gkiOfiTAbPR2QOgwPW6mGaPwb8Gk';
+    const SHEET_URL_VIEW = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pubhtml?widget=true&amp;headers=false`;
+    const SHEET_URL_EDIT = `https://docs.google.com/spreadsheets/d/TU_ID_DE_EDICION/edit?usp=sharing`;  // ← 
+
+    const excelIframe = document.getElementById('excel-iframe');
+    const editBtn = document.getElementById('edit-excel-btn');
+    const viewBtn = document.getElementById('view-excel-btn');
+
+    if (editBtn && viewBtn && excelIframe) {
+      editBtn.addEventListener('click', () => {
+        excelIframe.src = SHEET_URL_EDIT;
+        editBtn.style.background = '#059669';
+        viewBtn.style.background = 'transparent';
+      });
+
+      viewBtn.addEventListener('click', () => {
+        excelIframe.src = SHEET_URL_VIEW;
+        viewBtn.style.background = 'rgba(0,0,0,0.05)';
+        editBtn.style.background = '#10b981';
+      });
+    }
+  </script>
 </body>
 </html>
+
